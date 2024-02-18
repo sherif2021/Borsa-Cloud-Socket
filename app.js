@@ -54,7 +54,9 @@ function closeConnection(socket) {
 
 function onNewMessage(data) {
 
-    const { sender_id, contact_id } = data;
+    const sender_id = parent(data.sender_id);
+    const contact_id = parseInt(data.contact_id);
+    
     if (sender_id && online.has(sender_id)) {
         const user = online.get(sender_id)
         user.sockets.forEach(socket => {
