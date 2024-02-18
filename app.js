@@ -62,13 +62,13 @@ function onNewMessage(data) {
         user.sockets.forEach(socket => {
             socket.emit('new-message', data)
         })
-    } else console.log('here');
+    } else console.log(`here > ${sender_id}`);
     if (contact_id && online.has(contact_id)) {
         const user = online.get(contact_id)
         user.sockets.forEach(socket => {
             socket.emit('new-message', data)
         })
-    } else console.log('here2');
+    } else console.log(`here2 > ${contact_id}`);
 }
 server.listen(8000, () => {
     console.log('listening on *:8000');
