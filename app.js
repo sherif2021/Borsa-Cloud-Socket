@@ -8,16 +8,16 @@ const io = new Server(server);
 const online = new Map()
 
 io.on('connection', (socket) => {
-    const userId = parseInt(socket.handshake.headers.authorization);
-    if (userId) {
-        socket.userId = userId
-        if (online.has(userId)) {
-            online.get(userId).sockets.push(socket)
+    const officeId = parseInt(socket.handshake.headers.authorization);
+    if (officeId) {
+        socket.officeId = officeId
+        if (online.has(officeId)) {
+            online.get(officeId).sockets.push(socket)
         }
         else {
-            online.set(userId, { 'sockets': [socket] })
+            online.set(officeId, { 'sockets': [socket] })
         }
-        console.log(`${userId} user connected`);
+        console.log(`${officeId} user connected`);
         socket.on('disconnect', () => closeConnection(socket));
         socket.on('new-message', (text) => onNewMessage(text));
 
@@ -30,9 +30,9 @@ function closeConnection(socket) {
 
     try {
 
-        if (socket.userId && online.has(socket.userId)) {
+        if (socket.officeId && online.has(socket.officeId)) {
 
-            const user = online.get(socket.userId)
+            const user = online.get(socket.officeId)
 
             const index = user.sockets.indexOf(socket)
 
@@ -41,10 +41,10 @@ function closeConnection(socket) {
             }
 
             if (user.sockets.length == 0) {
-                online.delete(socket.userId)
+                online.delete(socket.officeId)
             }
         }
-        console.log(`${socket.userId} disconnect`)
+        console.log(`${socket.officeId} disconnect`)
         socket.disconnect();
 
     } catch (e) {
@@ -54,21 +54,21 @@ function closeConnection(socket) {
 
 function onNewMessage(data) {
 
-    const sender_id = parseInt(data.sender_id);
-    const contact_id = parseInt(data.contact_id);
+    const sender_office_id = parseInt(data.sender_office_id);
+    const received_office_id = parseInt(data.received_office_id);
 
-    if (sender_id && online.has(sender_id)) {
-        const user = online.get(sender_id)
+    if (sender_office_id && online.has(sender_office_id)) {
+        const user = online.get(sender_office_id)
         user.sockets.forEach(socket => {
             socket.emit('new-message', data)
         })
-    } else console.log(`here > ${sender_id}`);
-    if (contact_id && online.has(contact_id)) {
-        const user = online.get(contact_id)
+    } else console.log(`here > ${sender_office_id}`);
+    if (received_office_id && online.has(received_office_id)) {
+        const user = online.get(received_office_id)
         user.sockets.forEach(socket => {
             socket.emit('new-message', data)
         })
-    } else console.log(`here2 > ${contact_id}`);
+    } else console.log(`here2 > ${received_office_id}`);
 }
 server.listen(8000, () => {
     console.log('listening on *:8000');
